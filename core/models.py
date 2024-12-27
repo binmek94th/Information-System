@@ -39,6 +39,10 @@ class Student(models.Model):
     joined_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    guardian_first_name = models.CharField(max_length=255)
+    guardian_last_name = models.CharField(max_length=255)
+    guardian_phone_number = models.CharField(max_length=15)
+    guardian_address = models.CharField(max_length=255)
 
     def __str__(self):
         return self.user.first_name
