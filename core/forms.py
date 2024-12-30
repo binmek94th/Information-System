@@ -8,7 +8,7 @@ class DepartmentRegistrationForm(forms.ModelForm):
     class Meta:
         model = Department
         fields = '__all__'
-        exclude = ['id']
+        exclude = ['id', 'is_deleted']
 
 
 class StudentRegistrationForm(forms.ModelForm):
