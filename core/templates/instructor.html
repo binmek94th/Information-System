@@ -1,0 +1,57 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ context.form.as_p }}
+    <button type="submit">Add Instructor</button>
+</form>
+
+{% for instructor in context.InstructorDb %}
+    <p>{{ instructor.instructor_id }}</p>
+    <p>{{ instructor.user.first_name }} {{ instructor.user.last_name }}</p>
+    <p>{{ instructor.department }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ instructor.id }}">
+        <button type="submit">Delete</button>
+    </form>
+
+<button
+    onclick="showEditForm(
+        '{{ instructor.id }}',
+        '{{ instructor.user.first_name|escapejs }}',
+        '{{ instructor.user.last_name|escapejs }}',
+    )">
+    Edit
+</button>
+
+{% endfor %}
+
+<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="_method" value="PUT">
+    <input type="hidden" name="id" id="edit-id">
+    <div>
+        <label for="edit-first-name">First Name:</label>
+        <input type="text" name="first_name" id="edit-first-name">
+    </div>
+    <div>
+        <label for="edit-last-name">Last Name:</label>
+        <input type="text" name="last_name" id="edit-last-name">
+    </div>
+
+    <button type="submit">Save Changes</button>
+    <button type="button" onclick="hideEditForm()">Cancel</button>
+</form>
+
+<script>
+    function showEditForm(id, first_name, last_name) {
+        document.getElementById("edit-form").style.display = "block";
+        document.getElementById("edit-id").value = id;
+        document.getElementById("edit-first-name").value = first_name;
+        document.getElementById("edit-last-name").value = last_name;
+    }
+
+    function hideEditForm() {
+        document.getElementById("edit-form").style.display = "none";
+    }
+</script>

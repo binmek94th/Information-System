@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .forms import StudentRegistrationForm, DepartmentRegistrationForm
-from .models import Department, Student, User
+from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm
+from .models import Department, Student, User, Instructor
 from .utils import generate_easy_password
 
 
@@ -100,3 +100,63 @@ def student(request):
             return render(request, 'student.html', {'context': context}, status=204)
     if request.method == 'GET':
         return render(request, 'student.html', {'context': context})
+
+
+def instructor(request):
+    InstructorDb = Instructor.objects.filter(is_deleted=False)
+    department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
+    form = InstructorRegistrationForm(department_queryset=department_queryset)
+    context = {'InstructorDb': InstructorDb, 'form': form}
+    if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
+        if 'id' in request.POST:
+            instructorDb = Instructor.objects.get(id=request.POST['id'])
+            instructorDb.is_deleted = True
+            instructorDb.save()
+            return render(request, 'instructor.html', {'context': context}, status=202)
+        form = InstructorRegistrationForm(request.POST)
+        if form.is_valid():
+            instructor_id = "IN" + str(Instructor.objects.count() + 1 + 1000)
+            passwordGenerated = generate_easy_password(6)
+            user = User.objects.create_user(
+                username=str(instructor_id),
+                email=request.POST['email'],
+                first_name=request.POST['first_name'],
+                last_name=request.POST['last_name'],
+                password=passwordGenerated,
+                country=request.POST['country'],
+                city=request.POST['city'],
+                street=request.POST['street'],
+                phone_number=request.POST['phone_number'],
+            )
+            instructorNew = {
+                'instructor_id': instructor_id,
+                'user': user,
+                'department': form.cleaned_data['department'],
+            }
+            Instructor.objects.create(**instructorNew)
+            return render(request, 'instructor.html', {'context': context}, status=201)
+        else:
+            return render(request, 'instructor.html', {'context': context}, status=204)
+    if request.method == 'POST' and request.POST['_method'] == 'PUT':
+        instructorDb = Instructor.objects.get(id=request.POST['id'])
+        instructorUser = User.objects.get(id=instructorDb.user.id)
+        form = StudentRegistrationForm(request.POST, instance=instructorDb)
+        if form.is_valid():
+            instructorUser.first_name = form.cleaned_data['first_name']
+            instructorUser.last_name = form.cleaned_data['last_name']
+            instructorUser.email = form.cleaned_data['email']
+            instructorUser.country = form.cleaned_data['country']
+            instructorUser.city = form.cleaned_data['city']
+            instructorUser.street = form.cleaned_data['street']
+            instructorUser.phone_number = form.cleaned_data['phone_number']
+            instructorDb.is_active = form.cleaned_data['is_active']
+
+            instructorUser.save()
+            instructorDb.save()
+
+            return render(request, 'instructor.html', {'context': context}, status=201)
+        else:
+            return render(request, 'instructor.html', {'context': context}, status=204)
+    if request.method == 'GET':
+        print(context)
+        return render(request, 'instructor.html', {'context': context})

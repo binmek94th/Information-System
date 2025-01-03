@@ -54,8 +54,9 @@ class Instructor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     instructor_id = models.CharField(max_length=255, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.CharField(max_length=255)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

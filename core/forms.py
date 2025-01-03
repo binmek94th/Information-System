@@ -1,4 +1,4 @@
-from core.models import Student, Department
+from core.models import Student, Department, Instructor
 from django import forms
 
 
@@ -23,7 +23,28 @@ class StudentRegistrationForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = '__all__'
-        exclude = ['is_verified', 'is_active', 'joined_at', 'user', 'id', 'student_id']
+        exclude = ['is_verified', 'joined_at', 'is_deleted', 'user', 'id', 'student_id']
+
+    def __init__(self, *args, **kwargs):
+        department_queryset = kwargs.pop('department_queryset', None)
+        super().__init__(*args, **kwargs)
+        if department_queryset:
+            self.fields['department'].queryset = department_queryset
+
+
+class InstructorRegistrationForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=255)
+    last_name = forms.CharField(max_length=255)
+    country = forms.CharField(max_length=255)
+    city = forms.CharField(max_length=255)
+    street = forms.CharField(max_length=255)
+    phone_number = forms.CharField(max_length=12)
+    email = forms.EmailField()
+
+    class Meta:
+        model = Instructor
+        fields = '__all__'
+        exclude = ['is_verified', 'joined_at', 'is_deleted', 'user', 'id', 'instructor_id']
 
     def __init__(self, *args, **kwargs):
         department_queryset = kwargs.pop('department_queryset', None)
