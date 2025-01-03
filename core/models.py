@@ -70,7 +70,6 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
