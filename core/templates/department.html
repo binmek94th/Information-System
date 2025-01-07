@@ -8,6 +8,7 @@
     <p>{{ department.name }}</p>
     <p>{{ department.code }}</p>
     <p>{{ department.description }}</p>
+    <p>{{ department.is_active }}</p>
 
     <form method="post">
         {% csrf_token %}
@@ -15,7 +16,8 @@
         <button type="submit">Delete</button>
     </form>
 
-    <button onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}')">
+    <button onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}'
+            , '{{ department.is_active }}')">
         Edit
     </button>
 {% endfor %}
@@ -36,17 +38,22 @@
         <label for="edit-description">Description:</label>
         <textarea name="description" id="edit-description"></textarea>
     </div>
+        <div>
+        <label for="edit-is-active">Is Active:</label>
+        <input type="checkbox" name="is_active" id="edit-is-active">
+    </div>
     <button type="submit">Save Changes</button>
     <button type="button" onclick="hideEditForm()">Cancel</button>
 </form>
 
 <script>
-    function showEditForm(id, name, code, description) {
+    function showEditForm(id, name, code, description, is_active) {
         document.getElementById("edit-form").style.display = "block";
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-name").value = name;
         document.getElementById("edit-code").value = code;
         document.getElementById("edit-description").value = description;
+        document.getElementById("edit-is-active").value = is_active;
     }
 
     function hideEditForm() {

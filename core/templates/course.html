@@ -21,6 +21,7 @@
         '{{ course.name|escapejs }}',
         '{{ course.code|escapejs }}',
         '{{ course.description|escapejs }}',
+        '{{ course.is_active|escapejs }}'
     )">
     Edit
 </button>
@@ -43,18 +44,22 @@
         <label for="edit-description">Description:</label>
         <input type="text" name="edit-description" id="edit-description">
     </div>
-
+    <div>
+        <label for="edit-is-active">Is Active:</label>
+        <input type="checkbox" name="is_active" id="edit-is-active">
+    </div>
     <button type="submit">Save Changes</button>
     <button type="button" onclick="hideEditForm()">Cancel</button>
 </form>
 
 <script>
-    function showEditForm(id, code, name, description) {
+    function showEditForm(id, code, name, description, is_active) {
         document.getElementById("edit-form").style.display = "block";
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-name").value = name;
         document.getElementById("edit-code").value = code;
         document.getElementById("edit-description").value = description;
+        document.getElementById("edit-is-active").value = is_active;
     }
 
     function hideEditForm() {

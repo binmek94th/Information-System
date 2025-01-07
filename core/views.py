@@ -63,7 +63,9 @@ def department(request):
             return render(request, 'department.html', {'context': context}, status=204)
     if request.method == 'POST' and request.POST['_method'] == 'PUT':
         departmentDb = Department.objects.get(id=request.POST['id'])
-        form = DepartmentRegistrationForm(request.POST, instance=departmentDb)
+        data = request.POST.copy()
+        data['is_active'] = str('is_active' in data)
+        form = DepartmentRegistrationForm(data, instance=departmentDb)
         if form.is_valid():
             form.save()
             return render(request, 'department.html', {'context': context}, status=201)
@@ -247,8 +249,9 @@ def course(request):
             return render(request, 'course.html', {'context': context}, status=202)
         instructorDb = Instructor.objects.get(user=user)
         department_headDb = get_object_or_404(DepartmentHead, instructor=instructorDb)
-
-        form = CourseRegistrationForm(request.POST)
+        data = request.POST.copy()
+        data['is_active'] = str('is_active' in data)
+        form = CourseRegistrationForm(data)
         if form.is_valid():
             form.save(department=department_headDb.department)
             return render(request, 'course.html', {'context': context}, status=201)
