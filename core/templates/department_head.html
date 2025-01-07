@@ -1,30 +1,23 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ context.form.as_p }}
-    <button type="submit">Add Course</button>
+    <button type="submit">Add Department Head</button>
 </form>
 
-{% for course in context.courseDb %}
-    <p>{{ course.name }}</p>
-    <p>{{ course.code }}</p>
-    <p>{{ course.description }}</p>
+{% for department in context.departmentDb %}
+    <p>{{ department.name }}</p>
+    <p>{{ department.code }}</p>
+    <p>{{ department.description }}</p>
 
     <form method="post">
         {% csrf_token %}
-        <input type="hidden" name="id" value="{{ course.id }}">
+        <input type="hidden" name="id" value="{{ department.id }}">
         <button type="submit">Delete</button>
     </form>
 
-<button
-    onclick="showEditForm(
-        '{{ course.id }}',
-        '{{ course.name|escapejs }}',
-        '{{ course.code|escapejs }}',
-        '{{ course.description|escapejs }}',
-    )">
-    Edit
-</button>
-
+    <button onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}')">
+        Edit
+    </button>
 {% endfor %}
 
 <form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
@@ -32,24 +25,23 @@
     <input type="hidden" name="_method" value="PUT">
     <input type="hidden" name="id" id="edit-id">
     <div>
-        <label for="edit-name">Course Name:</label>
-        <input type="text" name="edit-name" id="edit-name">
+        <label for="edit-name">Name:</label>
+        <input type="text" name="name" id="edit-name">
     </div>
     <div>
-        <label for="edit-code">Course Code:</label>
-        <input type="text" name="edit-code" id="edit-code">
+        <label for="edit-code">Code:</label>
+        <input type="text" name="code" id="edit-code">
     </div>
     <div>
         <label for="edit-description">Description:</label>
-        <input type="text" name="edit-description" id="edit-description">
+        <textarea name="description" id="edit-description"></textarea>
     </div>
-
     <button type="submit">Save Changes</button>
     <button type="button" onclick="hideEditForm()">Cancel</button>
 </form>
 
 <script>
-    function showEditForm(id, code, name, description) {
+    function showEditForm(id, name, code, description) {
         document.getElementById("edit-form").style.display = "block";
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-name").value = name;

@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm, \
-    CourseRegistrationForm, LoginForm
-from .models import Department, Student, User, Instructor, Course
+    CourseRegistrationForm, LoginForm, DepartmentHeadForm
+from .models import Department, Student, User, Instructor, Course, DepartmentHead
 from .utils import generate_easy_password
 from django.contrib.auth import logout
+
 
 def login(request):
     login_form = LoginForm()
@@ -22,16 +23,16 @@ def login(request):
                     if user.is_active:
                         auth_login(request, user)
 
-                        if user.role == 'artist':
-                            return redirect('artist_page')
-                        elif user.role == 'buyer':
-                            return redirect('home')
+                        # if user.role == 'artist':
+                        #     return redirect('artist_page')
+                        # elif user.role == 'buyer':
+                        #     return redirect('home')
                     else:
                         messages.error(request, "Your account is inactive. Please contact support.")
                 else:
                     messages.error(request, "Invalid username or password.")
 
-    if request.method == 'GET' and 'signout' in request.GET:
+    if request.method == 'GET' and 'sign_out' in request.GET:
         logout(request)
         messages.success(request, "You have successfully signed out.")
         return redirect('home')
@@ -52,7 +53,9 @@ def department(request):
             departmentDb.is_active = False
             departmentDb.save()
             return render(request, 'department.html', {'context': context}, status=400)
-        form = DepartmentRegistrationForm(request.POST)
+        data = request.POST.copy()
+        data['is_active'] = str('is_active' in data)
+        form = DepartmentRegistrationForm(data)
         if form.is_valid():
             form.save()
             return render(request, 'department.html', {'context': context}, status=201)
@@ -70,6 +73,37 @@ def department(request):
         return render(request, 'department.html', {'context': context})
 
 
+def department_head(request):
+    head = DepartmentHead.objects.filter(is_deleted=False)
+    department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
+    instructor_queryset = Instructor.objects.filter(is_active=True).filter(is_deleted=False)
+    form = DepartmentHeadForm(department_queryset=department_queryset, instructor_queryset=instructor_queryset)
+    context = {'head': head, 'form': form}
+    if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
+        if 'id' in request.POST:
+            headDb = DepartmentHead.objects.get(id=request.POST['id'])
+            headDb.is_deleted = True
+            headDb.is_active = False
+            headDb.save()
+            return render(request, 'department_head.html', {'context': context}, status=400)
+        form = DepartmentHeadForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, 'department_head.html', {'context': context}, status=201)
+        else:
+            return render(request, 'department_head.html', {'context': context}, status=204)
+    if request.method == 'POST' and request.POST['_method'] == 'PUT':
+        headDb = DepartmentHead.objects.get(id=request.POST['id'])
+        form = DepartmentHeadForm(request.POST, instance=headDb)
+        if form.is_valid():
+            form.save()
+            return render(request, 'department_head.html', {'context': context}, status=201)
+        else:
+            return render(request, 'department_head.html', {'context': context}, status=204)
+    if request.method == 'GET':
+        return render(request, 'department_head.html', {'context': context})
+
+
 def student(request):
     studentDb = Student.objects.filter()
     department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
@@ -83,19 +117,8 @@ def student(request):
             return render(request, 'student.html', {'context': context}, status=400)
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            student_id = Student.objects.count() + 1 + 1000
-            passwordGenerated = generate_easy_password(6)
-            user = User.objects.create_user(
-                username=str(student_id),
-                email=request.POST['email'],
-                first_name=request.POST['first_name'],
-                last_name=request.POST['last_name'],
-                password=passwordGenerated,
-                country=request.POST['country'],
-                city=request.POST['city'],
-                street=request.POST['street'],
-                phone_number=request.POST['phone_number'],
-            )
+            student_id = 'ST' + str(Student.objects.count() + 1 + 1000)
+            user = create_user(request, student_id)
             studentNew = {
                 'student_id': student_id,
                 'user': user,
@@ -139,6 +162,22 @@ def student(request):
         return render(request, 'student.html', {'context': context})
 
 
+def create_user(request, created_id):
+    passwordGenerated = generate_easy_password(8)
+    user = User.objects.create_user(
+        username=created_id,
+        email=request.POST['email'],
+        first_name=request.POST['first_name'],
+        last_name=request.POST['last_name'],
+        password=passwordGenerated,
+        country=request.POST['country'],
+        city=request.POST['city'],
+        street=request.POST['street'],
+        phone_number=request.POST['phone_number'],
+    )
+    return user
+
+
 def instructor(request):
     InstructorDb = Instructor.objects.filter(is_deleted=False)
     department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
@@ -152,21 +191,10 @@ def instructor(request):
             return render(request, 'instructor.html', {'context': context}, status=202)
         form = InstructorRegistrationForm(request.POST)
         if form.is_valid():
-            instructor_id = "IN" + str(Instructor.objects.count() + 1 + 1000)
-            passwordGenerated = generate_easy_password(6)
-            user = User.objects.create_user(
-                username=str(instructor_id),
-                email=request.POST['email'],
-                first_name=request.POST['first_name'],
-                last_name=request.POST['last_name'],
-                password=passwordGenerated,
-                country=request.POST['country'],
-                city=request.POST['city'],
-                street=request.POST['street'],
-                phone_number=request.POST['phone_number'],
-            )
+            created_id = 'IN' + str(Instructor.objects.count() + 1 + 1000)
+            user = create_user(request, created_id)
             instructorNew = {
-                'instructor_id': instructor_id,
+                'instructor_id': created_id,
                 'user': user,
                 'department': form.cleaned_data['department'],
             }
@@ -198,25 +226,35 @@ def instructor(request):
         return render(request, 'instructor.html', {'context': context})
 
 
+def permission_denied(request):
+    return render(request, 'permission_denied.html')
+
+
 def course(request):
     courseDb = Course.objects.filter(is_deleted=False)
     form = CourseRegistrationForm()
-    context = {'CourseDb': courseDb, 'form': form}
+    context = {'courseDb': courseDb, 'form': form}
     user = request.user
     if not user.is_authenticated:
         return redirect('login')
+    if not user.groups.filter(name="Department Head").exists():
+        return redirect('permission_denied')
     if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
         if 'id' in request.POST:
             courseDb = Course.objects.get(id=request.POST['id'])
             courseDb.is_deleted = True
             courseDb.save()
             return render(request, 'course.html', {'context': context}, status=202)
+        instructorDb = Instructor.objects.get(user=user)
+        department_headDb = get_object_or_404(DepartmentHead, instructor=instructorDb)
+
         form = CourseRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            form.save(department=department_headDb.department)
             return render(request, 'course.html', {'context': context}, status=201)
         else:
-            return render(request, 'course.html', {'context': context}, status=204)
+            return render(request, 'course.html', {'form': form, 'errors': form.errors}, status=400)
+
     if request.method == 'POST' and request.POST['_method'] == 'PUT':
         courseDb = Course.objects.get(id=request.POST['id'])
         form = DepartmentRegistrationForm(request.POST, instance=courseDb)
@@ -227,5 +265,4 @@ def course(request):
             return render(request, 'course.html', {'context': context}, status=204)
 
     if request.method == 'GET':
-        print(context)
         return render(request, 'course.html', {'context': context})

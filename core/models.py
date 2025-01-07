@@ -1,5 +1,5 @@
 import uuid
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 
 
@@ -21,6 +21,17 @@ class Department(models.Model):
         return self.name
 
 
+class DepartmentHead(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    instructor = models.OneToOneField('Instructor', on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.instructor.user.first_name
+
+
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     birth_date = models.DateField(null=True)
@@ -30,6 +41,9 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     gender = models.CharField(max_length=50, choices=GenderType.choices,
                               default=GenderType.MALE)
+
+    def __str__(self):
+        return self.first_name + " " + self.last_name
 
 
 class Student(models.Model):
@@ -60,7 +74,7 @@ class Instructor(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.user.first_name
+        return self.user.first_name + " " + self.user.last_name
 
 
 class Course(models.Model):
@@ -94,9 +108,6 @@ class Assessment(models.Model):
     grade = models.ForeignKey('Grade', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.title
-
 
 class Grade(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -107,5 +118,3 @@ class Grade(models.Model):
 
     def __str__(self):
         return f"{self.student.user.first_name} - {self.course.name}"
-
-

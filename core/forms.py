@@ -1,4 +1,4 @@
-from core.models import Student, Department, Instructor, Course
+from core.models import Student, Department, Instructor, Course, DepartmentHead
 from django import forms
 
 
@@ -8,12 +8,26 @@ class LoginForm(forms.Form):
 
 
 class DepartmentRegistrationForm(forms.ModelForm):
-    name = forms.CharField(max_length=255)
-
     class Meta:
         model = Department
         fields = '__all__'
         exclude = ['id', 'is_deleted']
+
+
+class DepartmentHeadForm(forms.ModelForm):
+    class Meta:
+        model = DepartmentHead
+        fields = '__all__'
+        exclude = ['id', 'is_deleted']
+
+    def __init__(self, *args, **kwargs):
+        department_queryset = kwargs.pop('department_queryset', None)
+        instructor_queryset = kwargs.pop('instructor_queryset', None)
+        super().__init__(*args, **kwargs)
+        if instructor_queryset:
+            self.fields['instructor'].queryset = instructor_queryset
+        if department_queryset:
+            self.fields['department'].queryset = department_queryset
 
 
 class StudentRegistrationForm(forms.ModelForm):
@@ -63,3 +77,11 @@ class CourseRegistrationForm(forms.ModelForm):
         model = Course
         fields = '__all__'
         exclude = ['id', 'is_deleted', 'department']
+
+    def save(self, department=None, *args, **kwargs):
+        instance = super().save(commit=False)
+        if department:
+            instance.department = department
+        instance.save()
+        return instance
+

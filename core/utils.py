@@ -9,8 +9,10 @@ def generate_easy_password(length=12):
     ]
 
     all_characters = lower
-    password += random.choices(all_characters, k=length - 4)
+    password += random.choices(all_characters, k=length - 1)
 
     random.shuffle(password)
 
-    return ''.join(password)
+    password = ''.join(password)
+    print(password)
+    return password
