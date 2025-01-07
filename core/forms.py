@@ -1,4 +1,4 @@
-from core.models import Student, Department, Instructor, Course, DepartmentHead
+from core.models import Student, Department, Instructor, Course, DepartmentHead, Term, Section
 from django import forms
 
 
@@ -85,3 +85,30 @@ class CourseRegistrationForm(forms.ModelForm):
         instance.save()
         return instance
 
+
+class TermForm(forms.ModelForm):
+    start_date = forms.DateField(
+        input_formats=['%d-%m-%Y'],
+        widget=forms.DateInput(attrs={'placeholder': 'DD-MM-YYYY'})
+    )
+    end_date = forms.DateField(
+        input_formats=['%d-%m-%Y'],
+        widget=forms.DateInput(attrs={'placeholder': 'DD-MM-YYYY'})
+    )
+    class Meta:
+        model = Term
+        fields = '__all__'
+        exclude = ['id', 'is_deleted']
+
+
+class SectionForm(forms.ModelForm):
+    class Meta:
+        model = Section
+        fields = '__all__'
+        exclude = ['id', 'is_deleted']
+
+    def __init__(self, *args, **kwargs):
+        department_queryset = kwargs.pop('department_queryset', None)
+        super().__init__(*args, **kwargs)
+        if department_queryset:
+            self.fields['department'].queryset = department_queryset

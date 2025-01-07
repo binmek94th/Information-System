@@ -1,0 +1,68 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ context.form.as_p }}
+    <button type="submit">Add Term</button>
+</form>
+
+{% for term in context.termDb %}
+    <p>{{ term.name }}</p>
+    <p>{{ term.year }}</p>
+    <p>{{ term.start_date }}</p>
+    <p>{{ term.end_date }}</p>
+    <p>{{ term.is_active }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ term.id }}">
+        <button type="submit">Delete</button>
+    </form>
+
+    <button onclick="showEditForm('{{ term.id }}', '{{ term.name }}', '{{ term.year }}',
+            '{{ term.start_date }}', '{{ term.end_date }}', '{{ term.is_active }}')">
+        Edit
+    </button>
+{% endfor %}
+
+<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="_method" value="PUT">
+    <input type="hidden" name="id" id="edit-id">
+    <div>
+        <label for="edit-name">Name:</label>
+        <input type="text" name="name" id="edit-name">
+    </div>
+    <div>
+        <label for="edit-year">Year:</label>
+        <input type="text" name="year" id="edit-year">
+    </div>
+    <div>
+        <label for="edit-start-year">Code:</label>
+        <input type="date" name="start-year" id="edit-start-year">
+    </div>
+    <div>
+        <label for="edit-end-year">Code:</label>
+        <input type="date" name="end-year" id="edit-end-year">
+    </div>
+    <div>
+        <label for="edit-is-active">Is Active:</label>
+        <input type="checkbox" name="is_active" id="edit-is-active">
+    </div>
+    <button type="submit">Save Changes</button>
+    <button type="button" onclick="hideEditForm()">Cancel</button>
+</form>
+
+<script>
+    function showEditForm(id, name, year, start_year, end_year, is_active) {
+        document.getElementById("edit-form").style.display = "block";
+        document.getElementById("edit-id").value = id;
+        document.getElementById("edit-name").value = name;
+        document.getElementById("edit-year").value = year;
+        document.getElementById("edit-start-year").value = start_year;
+        document.getElementById("edit-end-year").value = end_year;
+        document.getElementById("edit-is-active").value = is_active;
+    }
+
+    function hideEditForm() {
+        document.getElementById("edit-form").style.display = "none";
+    }
+</script>

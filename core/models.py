@@ -124,6 +124,7 @@ class Grade(models.Model):
 class Term(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
+    year = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField(default=False)
@@ -149,6 +150,7 @@ class Section(models.Model):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm, \
-    CourseRegistrationForm, LoginForm, DepartmentHeadForm
-from .models import Department, Student, User, Instructor, Course, DepartmentHead
+    CourseRegistrationForm, LoginForm, DepartmentHeadForm, TermForm, SectionForm
+from .models import Department, Student, User, Instructor, Course, DepartmentHead, Term, Section
 from .utils import generate_easy_password
 from django.contrib.auth import logout
 
@@ -266,3 +266,67 @@ def course(request):
 
     if request.method == 'GET':
         return render(request, 'course.html', {'context': context})
+
+
+def term(request):
+    termDb = Term.objects.filter(is_deleted=False)
+    form = TermForm()
+    context = {'termDb': termDb, 'form': form}
+    if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
+        if 'id' in request.POST:
+            termDb = Term.objects.get(id=request.POST['id'])
+            termDb.is_deleted = True
+            termDb.is_active = False
+            termDb.save()
+            return render(request, 'term.html', {'context': context}, status=400)
+        data = request.POST.copy()
+        data['is_active'] = str('is_active' in data)
+        form = TermForm(data)
+        print(form.errors)
+        if form.is_valid():
+            form.save()
+            return render(request, 'term.html', {'context': context}, status=201)
+        else:
+            return render(request, 'term.html', {'context': context}, status=204)
+    if request.method == 'POST' and request.POST['_method'] == 'PUT':
+        termDb = Term.objects.get(id=request.POST['id'])
+        form = TermForm(request.POST, instance=termDb)
+        if form.is_valid():
+            form.save()
+            return render(request, 'term.html', {'context': context}, status=201)
+        else:
+            return render(request, 'term.html', {'context': context}, status=204)
+    if request.method == 'GET':
+        return render(request, 'term.html', {'context': context})
+
+
+def section(request):
+    sectionDb = Section.objects.filter(is_deleted=False)
+    department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
+    form = SectionForm(department_queryset=department_queryset)
+    context = {'sectionDb': sectionDb, 'form': form}
+    if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
+        if 'id' in request.POST:
+            sectionDb = Section.objects.get(id=request.POST['id'])
+            sectionDb.is_deleted = True
+            sectionDb.is_active = False
+            sectionDb.save()
+            return render(request, 'section.html', {'context': context}, status=400)
+        data = request.POST.copy()
+        data['is_active'] = str('is_active' in data)
+        form = SectionForm(data)
+        if form.is_valid():
+            form.save()
+            return render(request, 'section.html', {'context': context}, status=201)
+        else:
+            return render(request, 'section.html', {'context': context}, status=204)
+    if request.method == 'POST' and request.POST['_method'] == 'PUT':
+        sectionDb = Section.objects.get(id=request.POST['id'])
+        form = SectionForm(request.POST, instance=sectionDb)
+        if form.is_valid():
+            form.save()
+            return render(request, 'section.html', {'context': context}, status=201)
+        else:
+            return render(request, 'section.html', {'context': context}, status=204)
+    if request.method == 'GET':
+        return render(request, 'section.html', {'context': context})
