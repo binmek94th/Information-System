@@ -70,6 +70,7 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -81,6 +82,7 @@ class CourseRegistration(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     registered_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.student.user.first_name} - {self.course.name}"

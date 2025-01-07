@@ -1,5 +1,10 @@
-from core.models import Student, Department, Instructor
+from core.models import Student, Department, Instructor, Course
 from django import forms
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=150)
+    password = forms.CharField(widget=forms.PasswordInput)
 
 
 class DepartmentRegistrationForm(forms.ModelForm):
@@ -51,3 +56,10 @@ class InstructorRegistrationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if department_queryset:
             self.fields['department'].queryset = department_queryset
+
+
+class CourseRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = '__all__'
+        exclude = ['id', 'is_deleted', 'department']

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}" />
+  </head>
+  <body>
+    {% block content %}
+    <div class="form-container">
+      <!-- Login Form -->
+      <div class="form-wrapper active" id="login-form">
+        <h2>Login</h2>
+        <form method="POST" action="{% url 'login' %}">
+          {% csrf_token %}
+          {{ login_form.as_p }}
+          <input type="hidden" name="login" value="true" />
+          <button type="submit">Login</button>
+        </form>
+      </div>
+
+      <!-- Sign-Out Link -->
+      {% if user.is_authenticated %}
+      <div class="signout-section">
+        <p>Welcome, {{ user.username }}!</p>
+        <form method="GET" action="{% url 'login' %}">
+          <input type="hidden" name="signout" value="true" />
+          <button type="submit">Sign Out</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+    {% endblock %}
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const loginForm = document.getElementById("login-form");
+        const firstInput = loginForm.querySelector("input, select, textarea");
+        if (firstInput) {
+          firstInput.focus();
+        }
+      });
+    </script>
+  </body>
+</html>

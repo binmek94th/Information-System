@@ -1,7 +1,44 @@
-from django.shortcuts import render
-from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm
-from .models import Department, Student, User, Instructor
+from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login
+from django.shortcuts import render, redirect
+from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm, \
+    CourseRegistrationForm, LoginForm
+from .models import Department, Student, User, Instructor, Course
 from .utils import generate_easy_password
+from django.contrib.auth import logout
+
+def login(request):
+    login_form = LoginForm()
+
+    if request.method == 'POST':
+        if 'login' in request.POST:
+            login_form = LoginForm(request.POST)
+            if login_form.is_valid():
+                username = login_form.cleaned_data['username']
+                password = login_form.cleaned_data['password']
+                user = authenticate(request, username=username, password=password)
+
+                if user is not None:
+                    if user.is_active:
+                        auth_login(request, user)
+
+                        if user.role == 'artist':
+                            return redirect('artist_page')
+                        elif user.role == 'buyer':
+                            return redirect('home')
+                    else:
+                        messages.error(request, "Your account is inactive. Please contact support.")
+                else:
+                    messages.error(request, "Invalid username or password.")
+
+    if request.method == 'GET' and 'signout' in request.GET:
+        logout(request)
+        messages.success(request, "You have successfully signed out.")
+        return redirect('home')
+
+    return render(request, 'login.html', {
+        'login_form': login_form,
+    })
 
 
 def department(request):
@@ -158,5 +195,37 @@ def instructor(request):
         else:
             return render(request, 'instructor.html', {'context': context}, status=204)
     if request.method == 'GET':
-        print(context)
         return render(request, 'instructor.html', {'context': context})
+
+
+def course(request):
+    courseDb = Course.objects.filter(is_deleted=False)
+    form = CourseRegistrationForm()
+    context = {'CourseDb': courseDb, 'form': form}
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+    if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
+        if 'id' in request.POST:
+            courseDb = Course.objects.get(id=request.POST['id'])
+            courseDb.is_deleted = True
+            courseDb.save()
+            return render(request, 'course.html', {'context': context}, status=202)
+        form = CourseRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, 'course.html', {'context': context}, status=201)
+        else:
+            return render(request, 'course.html', {'context': context}, status=204)
+    if request.method == 'POST' and request.POST['_method'] == 'PUT':
+        courseDb = Course.objects.get(id=request.POST['id'])
+        form = DepartmentRegistrationForm(request.POST, instance=courseDb)
+        if form.is_valid():
+            form.save()
+            return render(request, 'course.html', {'context': context}, status=201)
+        else:
+            return render(request, 'course.html', {'context': context}, status=204)
+
+    if request.method == 'GET':
+        print(context)
+        return render(request, 'course.html', {'context': context})
