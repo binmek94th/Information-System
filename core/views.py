@@ -107,7 +107,7 @@ def department_head(request):
 
 
 def student(request):
-    studentDb = Student.objects.filter()
+    studentDb = Student.objects.filter(is_deleted=False)
     department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
     form = StudentRegistrationForm(department_queryset=department_queryset)
     context = {'studentDb': studentDb, 'form': form}
@@ -139,6 +139,7 @@ def student(request):
         studentDb = Student.objects.get(id=request.POST['id'])
         studentUser = User.objects.get(id=studentDb.user.id)
         form = StudentRegistrationForm(request.POST, instance=studentDb)
+        print(form.errors)
         if form.is_valid():
             studentUser.first_name = form.cleaned_data['first_name']
             studentUser.last_name = form.cleaned_data['last_name']
@@ -158,7 +159,6 @@ def student(request):
 
             return render(request, 'student.html', {'context': context}, status=201)
         else:
-            print("printing", context.studentDb)
             return render(request, 'student.html', {'context': context}, status=204)
     if request.method == 'GET':
         return render(request, 'student.html', {'context': context})

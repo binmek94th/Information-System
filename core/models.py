@@ -56,6 +56,7 @@ class Student(models.Model):
     joined_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
     guardian_first_name = models.CharField(max_length=255)
     guardian_last_name = models.CharField(max_length=255)
     guardian_phone_number = models.CharField(max_length=15)
