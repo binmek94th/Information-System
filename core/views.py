@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm, \
-    CourseRegistrationForm, LoginForm, DepartmentHeadForm, TermForm, SectionForm
-from .models import Department, Student, User, Instructor, Course, DepartmentHead, Term, Section
+    CourseRegistrationForm, LoginForm, DepartmentHeadForm, TermForm, SectionForm, CourseOfferingForm
+from .models import Department, Student, User, Instructor, Course, DepartmentHead, Term, Section, CourseOffering
 from .utils import generate_easy_password
 from django.contrib.auth import logout
 
@@ -333,3 +333,48 @@ def section(request):
             return render(request, 'section.html', {'context': context}, status=204)
     if request.method == 'GET':
         return render(request, 'section.html', {'context': context})
+
+
+def course_offering(request):
+    offeringDb = CourseOffering.objects.filter(is_deleted=False)
+    courseDb = Course.objects.filter(is_deleted=False)
+    termDb = Term.objects.filter(is_deleted=False)
+    form = CourseOfferingForm(term=termDb, course=courseDb)
+    context = {'offeringDb': offeringDb, 'form': form}
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+    if not user.groups.filter(name="Department Head").exists():
+        return redirect('permission_denied')
+    if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
+        if 'id' in request.POST:
+            offeringDb = CourseOffering.objects.get(id=request.POST['id'])
+            offeringDb.is_deleted = True
+            offeringDb.is_active = False
+            offeringDb.save()
+            return render(request, 'course_offering.html', {'context': context}, status=400)
+        data = request.POST.copy()
+        data['is_active'] = str('is_active' in data)
+        form = CourseOfferingForm(data)
+        if form.is_valid():
+            instructorDb = Instructor.objects.get(user=user)
+            department_headDb = get_object_or_404(DepartmentHead, instructor=instructorDb)
+            new_course_offering = {
+                "term": form.cleaned_data['term'],
+                "course": form.cleaned_data['course'],
+                "department": department_headDb.department
+            }
+            CourseOffering.objects.create(**new_course_offering)
+            return render(request, 'course_offering.html', {'context': context}, status=201)
+        else:
+            return render(request, 'course_offering.html', {'context': context}, status=204)
+    if request.method == 'POST' and request.POST['_method'] == 'PUT':
+        offeringDb = CourseOffering.objects.get(id=request.POST['id'])
+        form = CourseOfferingForm(request.POST, instance=offeringDb)
+        if form.is_valid():
+            form.save()
+            return render(request, 'course_offering.html', {'context': context}, status=201)
+        else:
+            return render(request, 'course_offering.html', {'context': context}, status=204)
+    if request.method == 'GET':
+        return render(request, 'course_offering.html', {'context': context})

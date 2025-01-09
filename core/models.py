@@ -140,6 +140,7 @@ class CourseOffering(models.Model):
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.course.name} - {self.term.name}"

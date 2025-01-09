@@ -1,21 +1,20 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ context.form.as_p }}
-    <button type="submit">Add Section</button>
+    <button type="submit">Add Course Offering</button>
 </form>
-
-{% for section in context.sectionDb %}
-    <p>{{ section.name }}</p>
-    <p>{{ section.is_active }}</p>
-    <p>{{ section.description }}</p>
+{% for offering in context.offeringDb %}
+    <p>{{ offering.course }}</p>
+    <p>{{ offering.is_active }}</p>
+    <p>{{ offering.department }}</p>
 
     <form method="post">
         {% csrf_token %}
-        <input type="hidden" name="id" value="{{ section.id }}">
+        <input type="hidden" name="id" value="{{ offering.id }}">
         <button type="submit">Delete</button>
     </form>
 
-    <button onclick="showEditForm('{{ section.id }}', '{{ section.name }}', '{{ section.is_active }}')">
+    <button onclick="showEditForm('{{ offering.id }}', '{{ offering.name }}', '{{ offering.is_active }}')">
         Edit
     </button>
 {% endfor %}
@@ -37,7 +36,7 @@
 </form>
 
 <script>
-    function showEditForm(id, name, is_active) {
+    function showEditForm(id, name, code, is_active) {
         document.getElementById("edit-form").style.display = "block";
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-name").value = name;

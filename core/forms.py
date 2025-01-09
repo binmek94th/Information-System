@@ -1,4 +1,4 @@
-from core.models import Student, Department, Instructor, Course, DepartmentHead, Term, Section
+from core.models import Student, Department, Instructor, Course, DepartmentHead, Term, Section, CourseOffering
 from django import forms
 
 
@@ -95,6 +95,7 @@ class TermForm(forms.ModelForm):
         input_formats=['%d-%m-%Y'],
         widget=forms.DateInput(attrs={'placeholder': 'DD-MM-YYYY'})
     )
+
     class Meta:
         model = Term
         fields = '__all__'
@@ -112,3 +113,17 @@ class SectionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if department_queryset:
             self.fields['department'].queryset = department_queryset
+
+
+class CourseOfferingForm(forms.ModelForm):
+    class Meta:
+        model = CourseOffering
+        fields = '__all__'
+        exclude = ['id', 'is_deleted', 'department']
+
+    def __init__(self, *args, **kwargs):
+        course_queryset = kwargs.pop('course', None)
+        term_queryset = kwargs.pop('term', None)
+        super().__init__(*args, **kwargs)
+        if course_queryset:
+            self.fields['term'].queryset = term_queryset
