@@ -1,0 +1,55 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ context.form.as_p }}
+    <button type="submit">Add Section</button>
+</form>
+
+{% for section in context.sectionDb %}
+    <p>{{ section.name }}</p>
+    <p>{{ section.is_active }}</p>
+    <p>{{ section.description }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ section.id }}">
+        <button type="submit">Delete</button>
+    </form>
+
+    <button onclick="showEditForm('{{ section.id }}', '{{ section.name }}', '{{ section.is_active }}')">
+        Edit
+    </button>
+{% endfor %}
+
+<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="_method" value="PUT">
+    <input type="hidden" name="id" id="edit-id">
+    <div>
+        <label for="edit-name">Name:</label>
+        <input type="text" name="name" id="edit-name">
+    </div>
+    <div>
+        <label for="edit-code">Code:</label>
+        <input type="text" name="code" id="edit-code">
+    </div>
+    <div>
+        <label for="edit-is-active">Is Active:</label>
+        <input type="checkbox" name="is_active" id="edit-is-active">
+    </div>
+    <button type="submit">Save Changes</button>
+    <button type="button" onclick="hideEditForm()">Cancel</button>
+</form>
+
+<script>
+    function showEditForm(id, name, code, is_active) {
+        document.getElementById("edit-form").style.display = "block";
+        document.getElementById("edit-id").value = id;
+        document.getElementById("edit-name").value = name;
+        document.getElementById("edit-code").value = code;
+        document.getElementById("edit-is-active").value = is_active;
+    }
+
+    function hideEditForm() {
+        document.getElementById("edit-form").style.display = "none";
+    }
+</script>
