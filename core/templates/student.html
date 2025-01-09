@@ -1,10 +1,22 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ context.form.as_p }}
-    <button type="submit">Add Student</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
-{% for student in context.studentDb %}
+    <title>Document</title>
+  </head>
+  <body>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %} {{ context.form.as_p }}
+      <button type="submit">Add Student</button>
+    </form>
+
+    {% for student in context.studentDb %}
     <p>{{ student.student_id }}</p>
     <p>{{ student.user.first_name }} {{ student.user.last_name }}</p>
     <p>{{ student.department }}</p>
@@ -15,79 +27,112 @@
     <p><strong>{{ student.guardian_address }}</strong></p>
 
     <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="id" value="{{ student.id }}">
-        <button type="submit">Delete</button>
+      {% csrf_token %}
+      <input type="hidden" name="id" value="{{ student.id }}" />
+      <button type="submit">Delete</button>
     </form>
 
-<button
-    onclick="showEditForm(
-        '{{ student.id }}',
-        '{{ student.user.first_name|escapejs }}',
-        '{{ student.user.last_name|escapejs }}',
-        '{{ student.guardian_first_name|escapejs }}',
-        '{{ student.guardian_last_name|escapejs }}',
-        '{{ student.guardian_phone_number|escapejs }}',
-        '{{ student.guardian_address|escapejs }}'
-    )">
-    Edit
-</button>
+    <button
+      onclick="showEditForm(
+              '{{ student.id }}',
+              '{{ student.user.first_name|escapejs }}',
+              '{{ student.user.last_name|escapejs }}',
+              '{{ student.guardian_first_name|escapejs }}',
+              '{{ student.guardian_last_name|escapejs }}',
+              '{{ student.guardian_phone_number|escapejs }}',
+              '{{ student.guardian_address|escapejs }}'
+          )"
+    >
+      Edit
+    </button>
 
-{% endfor %}
+    {% endfor %}
 
-<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="hidden" name="_method" value="PUT">
-    <input type="hidden" name="id" id="edit-id">
+    <form
+      id="edit-form"
+      method="post"
+      style="display: none"
+      enctype="multipart/form-data"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="_method" value="PUT" />
+      <input type="hidden" name="id" id="edit-id" />
 
-    <div>
+      <div>
         <label for="edit-student-id">Student ID:</label>
-        <input type="text" name="student_id" id="edit-student-id">
-    </div>
-    <div>
+        <input type="text" name="student_id" id="edit-student-id" />
+      </div>
+      <div>
         <label for="edit-first-name">First Name:</label>
-        <input type="text" name="first_name" id="edit-first-name">
-    </div>
-    <div>
+        <input type="text" name="first_name" id="edit-first-name" />
+      </div>
+      <div>
         <label for="edit-last-name">Last Name:</label>
-        <input type="text" name="last_name" id="edit-last-name">
-    </div>
-    <div>
+        <input type="text" name="last_name" id="edit-last-name" />
+      </div>
+      <div>
         <label for="edit-guardian-first-name">Guardian First Name:</label>
-        <input type="text" name="guardian_first_name" id="edit-guardian-first-name">
-    </div>
-    <div>
+        <input
+          type="text"
+          name="guardian_first_name"
+          id="edit-guardian-first-name"
+        />
+      </div>
+      <div>
         <label for="edit-guardian-last-name">Guardian Last Name:</label>
-        <input type="text" name="guardian_last_name" id="edit-guardian-last-name">
-    </div>
-    <div>
+        <input
+          type="text"
+          name="guardian_last_name"
+          id="edit-guardian-last-name"
+        />
+      </div>
+      <div>
         <label for="edit-guardian-phone-number">Guardian Phone Number:</label>
-        <input type="text" name="guardian_phone_number" id="edit-guardian-phone-number">
-    </div>
-    <div>
+        <input
+          type="text"
+          name="guardian_phone_number"
+          id="edit-guardian-phone-number"
+        />
+      </div>
+      <div>
         <label for="edit-guardian-address">Guardian Address:</label>
         <textarea name="guardian_address" id="edit-guardian-address"></textarea>
-    </div>
+      </div>
 
-    <button type="submit">Save Changes</button>
-    <button type="button" onclick="hideEditForm()">Cancel</button>
-</form>
+      <button type="submit">Save Changes</button>
+      <button type="button" onclick="hideEditForm()">Cancel</button>
+    </form>
 
-<script>
-    function showEditForm(id, student_id, first_name, last_name, guardian_first_name, guardian_last_name, guardian_phone_number, guardian_address) {
+    <script>
+      function showEditForm(
+        id,
+        student_id,
+        first_name,
+        last_name,
+        guardian_first_name,
+        guardian_last_name,
+        guardian_phone_number,
+        guardian_address
+      ) {
         document.getElementById("edit-form").style.display = "block";
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-student-id").value = student_id;
         document.getElementById("edit-first-name").value = first_name;
         document.getElementById("edit-last-name").value = last_name;
-        document.getElementById("edit-guardian-first-name").value = guardian_first_name;
-        document.getElementById("edit-guardian-last-name").value = guardian_last_name;
-        document.getElementById("edit-guardian-phone-number").value = guardian_phone_number;
-        if(guardian_address)
-            document.getElementById("edit-guardian-address").value = guardian_address;
-    }
+        document.getElementById("edit-guardian-first-name").value =
+          guardian_first_name;
+        document.getElementById("edit-guardian-last-name").value =
+          guardian_last_name;
+        document.getElementById("edit-guardian-phone-number").value =
+          guardian_phone_number;
+        if (guardian_address)
+          document.getElementById("edit-guardian-address").value =
+            guardian_address;
+      }
 
-    function hideEditForm() {
+      function hideEditForm() {
         document.getElementById("edit-form").style.display = "none";
-    }
-</script>
+      }
+    </script>
+  </body>
+</html>

@@ -31,9 +31,12 @@ env = environ.Env(
 
 # Read the .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env = environ.Env()
+
+
 
 # Use the environment variables
-DEBUG = env('DEBUG')
+DEBUG = env.bool('DEBUG', default=False)  # default=False is for production environment
 
 ALLOWED_HOSTS = []
 
@@ -83,9 +86,12 @@ WSGI_APPLICATION = 'InformationSystem.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db(),
+    
+    'default': env.db('DATABASE_URL'),
 }
-
+# DATABASES = {
+#     'default': env.db('DATABASE_URL')  # Automatically handles the database URL
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
