@@ -1,50 +1,219 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ context.form.as_p }}
-    <button type="submit">Add Section</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #add-form {
+        display: none; /* Hide initially */
+      }
 
-{% for section in context.sectionDb %}
-    <p>{{ section.name }}</p>
-    <p>{{ section.is_active }}</p>
-    <p>{{ section.description }}</p>
+      #edit-form {
+        display: none; /* Hide initially */
+      }
 
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="id" value="{{ section.id }}">
-        <button type="submit">Delete</button>
+      #section-list {
+        display: block; /* Visible by default */
+      }
+      #button-add {
+        display: block; /* Visible by default */
+        width: 20%;
+        align-items: center;
+        margin: auto;
+        padding: 1.5%;
+        margin-top: 2%;
+      }
+
+      .section-list {
+        margin-top: 20px;
+      }
+
+      .form-width {
+        width: 50%;
+        margin: auto;
+      }
+      .section-item {
+        width: 50%;
+        margin: auto;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+
+      .card-title {
+        font-weight: bold;
+      }
+
+      .badge {
+        font-size: 0.9em;
+        padding: 0.4em 0.6em;
+      }
+
+      .form-check-input:checked {
+        background-color: #60666f;
+        border-color: #474a4e;
+      }
+      .text {
+        margin: auto;
+        justify-content: center;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      type="submit"
+      id="button-add"
+      class="btn btn-primary w-10"
+      onclick="showAddForm()"
+    >
+      Add Section
+    </button>
+    <form
+      id="add-form"
+      method="post"
+      enctype="multipart/form-data"
+      class="form-width mb-4 shadow-sm p-4 bg-light rounded"
+    >
+      {% csrf_token %} {{ context.form.as_p }}
+      <button type="submit" class="btn btn-primary w-10">Add Section</button>
+      <button type="button" class="btn btn-secondary" onclick="hideAddForm()">
+        Cancel
+      </button>
+    </form>
+    {% if context.sectionDb %}
+
+    <div class="section-list">
+      <h1 class="text text-success" id="section-list">Lists of Section</h1>
+
+      {% for section in context.sectionDb %}
+      <div class="section-item card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-primary">{{ section.name }}</h5>
+          <p class="card-text">
+            <strong>Status:</strong>
+            <span
+              class="badge {{ section.is_active|yesno:'bg-success,text-bg-danger' }}"
+              >{{ section.is_active|yesno:"Active,Inactive" }}</span
+            >
+          </p>
+          <p class="card-text text-muted">{{ section.description }}</p>
+
+          <div class="section-actions d-flex justify-content-between">
+            <form method="post" class="me-2">
+              {% csrf_token %}
+              <input type="hidden" name="id" value="{{ section.id }}" />
+              <button type="submit" class="btn btn-danger btn-sm">
+                Delete
+              </button>
+            </form>
+
+            <button
+              style="width: 20%"
+              class="btn btn-secondary btn-sm"
+              onclick="showEditForm('{{ section.id }}', '{{ section.name }}', '{{ section.is_active }}')"
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <h1 class="text text-danger" id="section-list">No Section Found</h1>
+    {% endif %}
+    <form
+      id="edit-form"
+      method="post"
+      style="display: none"
+      enctype="multipart/form-data"
+      class="form-width card mt-4 p-4 shadow-sm bg-light rounded"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="_method" value="PUT" />
+      <input type="hidden" name="id" id="edit-id" />
+      <div class="mb-3">
+        <label for="edit-name" class="form-label">Name:</label>
+        <input
+          type="text"
+          name="name"
+          id="edit-name"
+          class="form-control"
+          placeholder="Section Name"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="edit-name" class="form-label">Department:</label>
+        <input
+          type="text"
+          name="name"
+          id="edit-name"
+          class="form-control"
+          placeholder="Section Name"
+        />
+      </div>
+      <div class="form-check mb-3">
+        <input
+          type="checkbox"
+          name="is_active"
+          id="edit-is-active"
+          class="form-check-input"
+        />
+        <label for="edit-is-active" class="form-check-label">Is Active</label>
+      </div>
+      <div class="form-actions d-flex justify-content-between">
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <button type="button" class="btn btn-light" onclick="hideEditForm()">
+          Cancel
+        </button>
+      </div>
     </form>
 
-    <button onclick="showEditForm('{{ section.id }}', '{{ section.name }}', '{{ section.is_active }}')">
-        Edit
-    </button>
-{% endfor %}
+    <script>
+      function showAddForm() {
+        // Show the 'add-form' and hide the others
+        document.getElementById("add-form").style.display = "block"; // Show Add Form
+        // document.getElementById("edit-form").style.display = "none"; // Hide Edit Form
+        document.getElementById("section-list").style.display = "none"; // Hide Section List
+        document.getElementById("button-add").style.display = "none";
 
-<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="hidden" name="_method" value="PUT">
-    <input type="hidden" name="id" id="edit-id">
-    <div>
-        <label for="edit-name">Name:</label>
-        <input type="text" name="name" id="edit-name">
-    </div>
-    <div>
-        <label for="edit-is-active">Is Active:</label>
-        <input type="checkbox" name="is_active" id="edit-is-active">
-    </div>
-    <button type="submit">Save Changes</button>
-    <button type="button" onclick="hideEditForm()">Cancel</button>
-</form>
+        // Reset the 'add-form' fields
+        document.getElementById("add-form").reset();
+      }
+      window.onload = function () {
+        // Automatically show the section list when the page loads
+        document.getElementById("section-list").style.display = "block";
+        document.getElementById("add-form").style.display = "none";
+        document.getElementById("edit-form").style.display = "none";
+        document.getElementById("button-add").style.display = "block";
+      };
 
-<script>
-    function showEditForm(id, name, is_active) {
+      function showEditForm(id, name, is_active) {
         document.getElementById("edit-form").style.display = "block";
+        document.getElementById("add-form").style.display = "none";
+        document.getElementById("section-list").style.display = "none";
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-name").value = name;
-        document.getElementById("edit-is-active").value = is_active;
-    }
+        document.getElementById("edit-is-active").checked =
+          is_active === "True";
+      }
+      function hideAddForm() {
+        document.getElementById("add-form").style.display = "none";
+        document.querySelector("section-list").style.display = "block";
 
-    function hideEditForm() {
+        document.getElementById("button-add").style.display = "block";
+      }
+
+      function hideEditForm() {
         document.getElementById("edit-form").style.display = "none";
-    }
-</script>
+        // document.getElementById("add-form").style.display = "block";
+      }
+    </script>
+  </body>
+</html>
