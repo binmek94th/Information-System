@@ -1,68 +1,188 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ context.form.as_p }}
-    <button type="submit">Add Term</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <title>Term Management</title>
+  </head>
+  <body class="container mt-4">
+    <!-- Add Term Form -->
+    <div class="mb-3">
+      <button
+        id="add-term-btn"
+        class="btn btn-secondary mb-3"
+        onclick="showAddForm()"
+      >
+        Add Term
+      </button>
+    </div>
 
-{% for term in context.termDb %}
-    <p>{{ term.name }}</p>
-    <p>{{ term.year }}</p>
-    <p>{{ term.start_date }}</p>
-    <p>{{ term.end_date }}</p>
-    <p>{{ term.is_active }}</p>
+    <!-- Add Term Form -->
+    <div id="add-term-form" style="display: none; width: 50%; margin: auto">
+      <h3 class="text-center">Add Term</h3>
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        class="shadow-sm p-4 bg-light rounded"
+      >
+        {% csrf_token %} {{ context.form.as_p }}
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">Add Term</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="hideAddForm()"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
 
-    <form method="post">
+    <!-- Term List Table -->
+    <table class="table table-bordered table-striped mt-4">
+      <thead class="table-success">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Year</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for term in context.termDb %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ term.name }}</td>
+          <td>{{ term.year }}</td>
+          <td>{{ term.start_date }}</td>
+          <td>{{ term.end_date }}</td>
+          <td>{{ term.is_active }}</td>
+          <td>
+            <form method="post" class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="id" value="{{ term.id }}" />
+              <button type="submit" class="btn btn-danger btn-sm">
+                Delete
+              </button>
+            </form>
+            <button
+              class="btn btn-warning btn-sm"
+              onclick="showEditForm(
+                '{{ term.id }}',
+                '{{ term.name }}',
+                '{{ term.year }}',
+                '{{ term.start_date }}',
+                '{{ term.end_date }}',
+                '{{ term.is_active }}'
+              )"
+            >
+              Edit
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Edit Term Form -->
+    <div id="edit-form" style="display: none; width: 50%; margin: auto">
+      <h3 class="text-center">Edit Term</h3>
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        class="shadow-sm p-4 bg-light rounded"
+      >
         {% csrf_token %}
-        <input type="hidden" name="id" value="{{ term.id }}">
-        <button type="submit">Delete</button>
-    </form>
+        <input type="hidden" name="_method" value="PUT" />
+        <input type="hidden" name="id" id="edit-id" />
 
-    <button onclick="showEditForm('{{ term.id }}', '{{ term.name }}', '{{ term.year }}',
-            '{{ term.start_date }}', '{{ term.end_date }}', '{{ term.is_active }}')">
-        Edit
-    </button>
-{% endfor %}
+        <div class="mb-3">
+          <label for="edit-name" class="form-label">Name:</label>
+          <input type="text" name="name" id="edit-name" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label for="edit-year" class="form-label">Year:</label>
+          <input type="text" name="year" id="edit-year" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label for="edit-start-year" class="form-label">Start Date:</label>
+          <input
+            type="date"
+            name="start_year"
+            id="edit-start-year"
+            class="form-control"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="edit-end-year" class="form-label">End Date:</label>
+          <input
+            type="date"
+            name="end_year"
+            id="edit-end-year"
+            class="form-control"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="edit-is-active" class="form-label">Is Active:</label>
+          <input
+            type="checkbox"
+            name="is_active"
+            id="edit-is-active"
+            class="form-check-input"
+          />
+        </div>
 
-<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="hidden" name="_method" value="PUT">
-    <input type="hidden" name="id" id="edit-id">
-    <div>
-        <label for="edit-name">Name:</label>
-        <input type="text" name="name" id="edit-name">
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">Save Changes</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="hideEditForm()"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
     </div>
-    <div>
-        <label for="edit-year">Year:</label>
-        <input type="text" name="year" id="edit-year">
-    </div>
-    <div>
-        <label for="edit-start-year">Code:</label>
-        <input type="date" name="start-year" id="edit-start-year">
-    </div>
-    <div>
-        <label for="edit-end-year">Code:</label>
-        <input type="date" name="end-year" id="edit-end-year">
-    </div>
-    <div>
-        <label for="edit-is-active">Is Active:</label>
-        <input type="checkbox" name="is_active" id="edit-is-active">
-    </div>
-    <button type="submit">Save Changes</button>
-    <button type="button" onclick="hideEditForm()">Cancel</button>
-</form>
 
-<script>
-    function showEditForm(id, name, year, start_year, end_year, is_active) {
+    <script>
+      function showAddForm() {
+        document.getElementById("add-term-form").style.display = "block";
+        document.querySelector("table").style.display = "none";
+        document.getElementById("add-term-btn").style.display = "none";
+      }
+
+      function hideAddForm() {
+        document.getElementById("add-term-form").style.display = "none";
+        document.querySelector("table").style.display = "table";
+        document.getElementById("add-term-btn").style.display = "block";
+      }
+
+      function showEditForm(id, name, year, start_date, end_date, is_active) {
         document.getElementById("edit-form").style.display = "block";
+        document.querySelector("table").style.display = "none";
+
         document.getElementById("edit-id").value = id;
         document.getElementById("edit-name").value = name;
         document.getElementById("edit-year").value = year;
-        document.getElementById("edit-start-year").value = start_year;
-        document.getElementById("edit-end-year").value = end_year;
-        document.getElementById("edit-is-active").value = is_active;
-    }
+        document.getElementById("edit-start-year").value = start_date;
+        document.getElementById("edit-end-year").value = end_date;
+        document.getElementById("edit-is-active").checked =
+          is_active === "True";
+      }
 
-    function hideEditForm() {
+      function hideEditForm() {
         document.getElementById("edit-form").style.display = "none";
-    }
-</script>
+        document.querySelector("table").style.display = "table";
+      }
+    </script>
+  </body>
+</html>
