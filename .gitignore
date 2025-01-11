@@ -1,2 +1,4 @@
 /core/migrations
 .env
+/core/__pycache__
+/InformationSystem/__pycache__
