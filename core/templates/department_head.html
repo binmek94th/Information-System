@@ -1,55 +1,61 @@
 <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ context.form.as_p }}
-    <button type="submit">Add Department Head</button>
+  {% csrf_token %} {{ context.form.as_p }}
+  <button type="submit">Add Department Head</button>
 </form>
 
 {% for department in context.departmentDb %}
-    <p>{{ department.name }}</p>
-    <p>{{ department.code }}</p>
-    <p>{{ department.description }}</p>
+<p>{{ department.name }}</p>
+<p>{{ department.code }}</p>
+<p>{{ department.description }}</p>
 
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="id" value="{{ department.id }}">
-        <button type="submit">Delete</button>
-    </form>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="id" value="{{ department.id }}" />
+  <button type="submit">Delete</button>
+</form>
 
-    <button onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}')">
-        Edit
-    </button>
+<button
+  onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}')"
+>
+  Edit
+</button>
 {% endfor %}
 
-<form id="edit-form" method="post" style="display: none;" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="hidden" name="_method" value="PUT">
-    <input type="hidden" name="id" id="edit-id">
-    <div>
-        <label for="edit-name">Name:</label>
-        <input type="text" name="name" id="edit-name">
-    </div>
-    <div>
-        <label for="edit-code">Code:</label>
-        <input type="text" name="code" id="edit-code">
-    </div>
-    <div>
-        <label for="edit-description">Description:</label>
-        <textarea name="description" id="edit-description"></textarea>
-    </div>
-    <button type="submit">Save Changes</button>
-    <button type="button" onclick="hideEditForm()">Cancel</button>
+<form
+  id="edit-form"
+  method="post"
+  style="display: none"
+  enctype="multipart/form-data"
+>
+  {% csrf_token %}
+  <input type="hidden" name="_method" value="PUT" />
+  <input type="hidden" name="id" id="edit-id" />
+  <div>
+    <label for="edit-name">Name:</label>
+    <input type="text" name="name" id="edit-name" />
+  </div>
+  <div>
+    <label for="edit-code">Code:</label>
+    <input type="text" name="code" id="edit-code" />
+  </div>
+  <div>
+    <label for="edit-description">Description:</label>
+    <textarea name="description" id="edit-description"></textarea>
+  </div>
+  <button type="submit">Save Changes</button>
+  <button type="button" onclick="hideEditForm()">Cancel</button>
 </form>
 
 <script>
-    function showEditForm(id, name, code, description) {
-        document.getElementById("edit-form").style.display = "block";
-        document.getElementById("edit-id").value = id;
-        document.getElementById("edit-name").value = name;
-        document.getElementById("edit-code").value = code;
-        document.getElementById("edit-description").value = description;
-    }
+  function showEditForm(id, name, code, description) {
+    document.getElementById("edit-form").style.display = "block";
+    document.getElementById("edit-id").value = id;
+    document.getElementById("edit-name").value = name;
+    document.getElementById("edit-code").value = code;
+    document.getElementById("edit-description").value = description;
+  }
 
-    function hideEditForm() {
-        document.getElementById("edit-form").style.display = "none";
-    }
+  function hideEditForm() {
+    document.getElementById("edit-form").style.display = "none";
+  }
 </script>
