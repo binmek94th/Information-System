@@ -378,3 +378,7 @@ def course_offering(request):
             return render(request, 'course_offering.html', {'context': context}, status=204)
     if request.method == 'GET':
         return render(request, 'course_offering.html', {'context': context})
+
+
+def home(request):
+    return render(request, 'home.html')
