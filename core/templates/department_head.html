@@ -1,61 +1,131 @@
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %} {{ context.form.as_p }}
-  <button type="submit">Add Department Head</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #eef2f3;
+      }
 
-{% for department in context.departmentDb %}
-<p>{{ department.name }}</p>
-<p>{{ department.code }}</p>
-<p>{{ department.description }}</p>
+      .navbar {
+        background-color: #374151;
+      }
 
-<form method="post">
-  {% csrf_token %}
-  <input type="hidden" name="id" value="{{ department.id }}" />
-  <button type="submit">Delete</button>
-</form>
+      .navbar-brand {
+        color: #f9fafb;
+        font-size: 1.6rem;
+        font-weight: bold;
+      }
 
-<button
-  onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}')"
->
-  Edit
-</button>
-{% endfor %}
+      .navbar .nav-link {
+        color: #d1d5db !important;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Student Information Dashboard</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'student' %}">Students</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">Reports</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'term' %}">term</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'course' %}">Course</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'instructor' %}">Instructor</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'department' %}">Department</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-<form
-  id="edit-form"
-  method="post"
-  style="display: none"
-  enctype="multipart/form-data"
->
-  {% csrf_token %}
-  <input type="hidden" name="_method" value="PUT" />
-  <input type="hidden" name="id" id="edit-id" />
-  <div>
-    <label for="edit-name">Name:</label>
-    <input type="text" name="name" id="edit-name" />
-  </div>
-  <div>
-    <label for="edit-code">Code:</label>
-    <input type="text" name="code" id="edit-code" />
-  </div>
-  <div>
-    <label for="edit-description">Description:</label>
-    <textarea name="description" id="edit-description"></textarea>
-  </div>
-  <button type="submit">Save Changes</button>
-  <button type="button" onclick="hideEditForm()">Cancel</button>
-</form>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %} {{ context.form.as_p }}
+      <button type="submit">Add Department Head</button>
+    </form>
 
-<script>
-  function showEditForm(id, name, code, description) {
-    document.getElementById("edit-form").style.display = "block";
-    document.getElementById("edit-id").value = id;
-    document.getElementById("edit-name").value = name;
-    document.getElementById("edit-code").value = code;
-    document.getElementById("edit-description").value = description;
-  }
+    {% for department in context.departmentDb %}
+    <p>{{ department.name }}</p>
+    <p>{{ department.code }}</p>
+    <p>{{ department.description }}</p>
 
-  function hideEditForm() {
-    document.getElementById("edit-form").style.display = "none";
-  }
-</script>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="id" value="{{ department.id }}" />
+      <button type="submit">Delete</button>
+    </form>
+
+    <button
+      onclick="showEditForm('{{ department.id }}', '{{ department.name }}', '{{ department.code }}', '{{ department.description }}')"
+    >
+      Edit
+    </button>
+    {% endfor %}
+
+    <form
+      id="edit-form"
+      method="post"
+      style="display: none"
+      enctype="multipart/form-data"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="_method" value="PUT" />
+      <input type="hidden" name="id" id="edit-id" />
+      <div>
+        <label for="edit-name">Name:</label>
+        <input type="text" name="name" id="edit-name" />
+      </div>
+      <div>
+        <label for="edit-code">Code:</label>
+        <input type="text" name="code" id="edit-code" />
+      </div>
+      <div>
+        <label for="edit-description">Description:</label>
+        <textarea name="description" id="edit-description"></textarea>
+      </div>
+      <button type="submit">Save Changes</button>
+      <button type="button" onclick="hideEditForm()">Cancel</button>
+    </form>
+
+    <script>
+      function showEditForm(id, name, code, description) {
+        document.getElementById("edit-form").style.display = "block";
+        document.getElementById("edit-id").value = id;
+        document.getElementById("edit-name").value = name;
+        document.getElementById("edit-code").value = code;
+        document.getElementById("edit-description").value = description;
+      }
+
+      function hideEditForm() {
+        document.getElementById("edit-form").style.display = "none";
+      }
+    </script>
+  </body>
+</html>

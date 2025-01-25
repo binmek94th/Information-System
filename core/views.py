@@ -2,12 +2,27 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StudentRegistrationForm, DepartmentRegistrationForm, InstructorRegistrationForm, \
-    CourseRegistrationForm, LoginForm, DepartmentHeadForm, TermForm, SectionForm, CourseOfferingForm
-from .models import Department, Student, User, Instructor, Course, DepartmentHead, Term, Section, CourseOffering
+    CourseRegistrationForm, LoginForm, DepartmentHeadForm, TermForm, SectionForm, CourseOfferingForm,Gradeform
+from .models import Department, Student, User, Instructor, Course, DepartmentHead, Term, Section, CourseOffering,Grade
 from .utils import generate_easy_password
 from django.contrib.auth import logout
 
+def home(request):
+    student=Student.objects.count()
+    courses=Course.objects.count()
+    instructor=Instructor.objects.count()
+    department=Department.objects.count()
+    department_head=DepartmentHead.objects.count()
+    sections=Section.objects.count()
 
+
+    return render(request, 'home.html',{'student':student,
+                                        'courses':courses,
+                                        'instructor':instructor,
+                                        'department':department,
+                                        'department_head':department_head,
+                                        'sections':sections
+                                        })
 def login(request):
     login_form = LoginForm()
 
@@ -107,9 +122,10 @@ def department_head(request):
 
 
 def student(request):
-    studentDb = Student.objects.filter()
+    studentDb = Student.objects.filter(is_deleted=False)
     department_queryset = Department.objects.filter(is_active=True).filter(is_deleted=False)
     form = StudentRegistrationForm(department_queryset=department_queryset)
+
     context = {'studentDb': studentDb, 'form': form}
     if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
         if 'id' in request.POST:
@@ -139,6 +155,7 @@ def student(request):
         studentDb = Student.objects.get(id=request.POST['id'])
         studentUser = User.objects.get(id=studentDb.user.id)
         form = StudentRegistrationForm(request.POST, instance=studentDb)
+
         if form.is_valid():
             studentUser.first_name = form.cleaned_data['first_name']
             studentUser.last_name = form.cleaned_data['last_name']
@@ -162,10 +179,14 @@ def student(request):
             return render(request, 'student.html', {'context': context}, status=204)
     if request.method == 'GET':
         return render(request, 'student.html', {'context': context})
-
+def student_detail(request, student_id):
+    # Get the student object using the student_id
+    student = get_object_or_404(Student, student_id=student_id)
+    return render(request, 'student_detail.html', {'student': student})
 
 def create_user(request, created_id):
     passwordGenerated = generate_easy_password(8)
+    print( passwordGenerated)
     user = User.objects.create_user(
         username=created_id,
         email=request.POST['email'],
@@ -177,6 +198,7 @@ def create_user(request, created_id):
         street=request.POST['street'],
         phone_number=request.POST['phone_number'],
     )
+   
     return user
 
 
@@ -239,8 +261,8 @@ def course(request):
     user = request.user
     if not user.is_authenticated:
         return redirect('login')
-    if not user.groups.filter(name="Department Head").exists():
-        return redirect('permission_denied')
+    # if not user.groups.filter(name="Department Head").exists():
+    #     return redirect('permission_denied')
     if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
         if 'id' in request.POST:
             courseDb = Course.objects.get(id=request.POST['id'])
@@ -344,8 +366,8 @@ def course_offering(request):
     user = request.user
     if not user.is_authenticated:
         return redirect('login')
-    if not user.groups.filter(name="Department Head").exists():
-        return redirect('permission_denied')
+    # if not user.groups.filter(name="Department Head").exists():
+    #     return redirect('permission_denied')
     if request.method == 'POST' and ('_method' not in request.POST or request.POST['_method'] != 'PUT'):
         if 'id' in request.POST:
             offeringDb = CourseOffering.objects.get(id=request.POST['id'])
@@ -378,3 +400,5 @@ def course_offering(request):
             return render(request, 'course_offering.html', {'context': context}, status=204)
     if request.method == 'GET':
         return render(request, 'course_offering.html', {'context': context})
+# def grade(request):
+    

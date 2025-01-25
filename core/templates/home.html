@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #eef2f3;
+      }
+
+      .navbar {
+        background-color: #374151;
+      }
+
+      .navbar-brand {
+        color: #f9fafb;
+        font-size: 1.6rem;
+        font-weight: bold;
+      }
+
+      .navbar .nav-link {
+        color: #d1d5db !important;
+      }
+
+      .card {
+        border-radius: 12px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        /* margin-bottom: 9%; */
+        width:20rem;
+        
+        
+        margin: 20px 50px; /* Top and Bottom: 20px, Left and Right: 10px */
+    
+        
+      }
+
+     
+      footer {
+        background-color: #374151;
+        color: #f9fafb;
+        text-align: center;
+        padding: 10px 0;
+      }
+      /* #dashboard {
+        margin-left: 8%;
+        margin-top: 5%;
+        
+        
+      } */
+      /* .card {
+        margin: 7%;
+     
+      
+        background-color:aliceblue;
+      }
+       */
+    </style>
+  </head>
+
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Student Information Dashboard</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'student' %}">Students</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">Reports</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'term' %}">term</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'course' %}">Course</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'instructor' %}">Instructor</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'department' %}">Department</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <section id="dashboard" class="mb-5" style="gap: 0; margin-right: 30rem;margin-left: 5rem;margin-top: 5rem;">
+      <div class="row " >
+          <div class="col-md-4" class="card">
+            <div class="card " >
+              <div class="card-body">
+                <h5 class="card-title">Student</h5>
+                <p class="fs-3">{{ student }}</p>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="col-md-4" class="card">
+          <div class="card " >
+            <div class="card-body ">
+              <h5 class="card-title">Courses</h5>
+              <p class="fs-3">{{ courses }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 " class="card">
+          <div class="card" >
+            <div class="card-body">
+              <h5 class="card-title">instructors</h5>
+              <p class="fs-3">{{ instructor }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" class="card">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Departments</h5>
+              <p class="fs-3">{{ department }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 " class="card">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Department Heads</h5>
+              <p class="fs-3">{{ department_head }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 " class="card">
+          <div class="card" >
+            <div class="card-body " >
+              <h5 class="card-title">Sections</h5>
+              <p class="fs-3">{{ sections }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add Student Modal -->
+
+    <!-- Footer -->
+    <footer class="mt-5">
+      <p>© 2025 Student Information System. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
